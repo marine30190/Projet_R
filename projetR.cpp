@@ -50,7 +50,7 @@ void initBoard(){
   
   // placer les mines : 
   
-  srand
+    srand;
     
     srand(time(0));
   
