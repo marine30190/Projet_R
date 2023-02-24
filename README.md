@@ -1,5 +1,4 @@
 # Projet_R
+But du programme : Faire un démineur avec fenêtre interactive.
 
-lulu  
-
-lala  
+Fait par Florian GOUTIERAS et Marine DALLO
