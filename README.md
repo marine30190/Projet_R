@@ -1,7 +1,8 @@
 # Projet_R
 
 ***********************************************************************************
-Auteurs : Florian GOUTIERAS et Marine DALLO
+Auteurs : Florian GOUTIERAS et Marine DALLO.
+
 Contact : florian.goutieras@etu.umontpellier.fr et marine.dallo@etu.umontpellier.fr
 ***********************************************************************************
 
