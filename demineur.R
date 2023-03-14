@@ -11,9 +11,9 @@ ui <- fluidPage(
   titlePanel("Démineur"),
   
   sidebarPanel(
-    sliderInput("n", "Taille de la grille", min = 5, max = 15, value = 10),
-    sliderInput("p", "Difficulté", min = 1, max = 3, value = 1), #Faire un truc plus pratique
-      actionButton("reset", "Nouvelle partie")
+   sliderInput("n", "Taille de la grille", min = 5, max = 15, value = 10),
+   sliderInput("p", "Difficulté", min = 1, max = 3, value = 1), #Faire un truc plus pratique
+    actionButton("reset", "Nouvelle partie")
   ),
   
   mainPanel(
@@ -69,8 +69,8 @@ server <- function(input, output, session) {
     # Retourne les trois éléments
     list(board = board, flags = flags, state = state)
   }
-}
-# Initialise la partie
+  
+  # Initialise la partie
   game <- commencePartie(input$n, input$p)
   
   # Affiche la grille
@@ -152,6 +152,37 @@ server <- function(input, output, session) {
       )
     )
   }
+  
+  # Affiche l'écran de fin de partie en cas de défaite
+  showGameOver <- function() {
+    showModal(
+      modalDialog(
+        title = "Perdu !",
+        "Vous avez perdu la partie.",
+        footer = tagList(
+          actionButton("reset", "Nouvelle partie"),
+          modalButton("Fermer")
+        )
+      )
+    )
+  }
+  
+  # Réinitialise la partie
+  observeEvent(input$reset, {
+    game <<- commencePartie(input$n, input$p)
+  })
+  
+  # Clique sur une case lorsqu'elle est cliquée par l'utilisateur
+  observeEvent(input$board_cell_clicked, {
+    coords <- strsplit(input$board_cell_clicked, ",")[[1]]
+    clickCase(as.numeric(coords[1]), as.numeric(coords[2]))
+  })
+  
+  # Place un drapeau lorsqu'il la case est cliquée-droit par l'utilisateur
+  observeEvent(input$board_cell_rightclicked, {
+    coords <- strsplit(input$board_cell_rightclicked, ",")[[1]]
+    flagCase(as.numeric(coords[1]), as.numeric(coords[2]))
+  })
+}
 
 shinyApp(ui, server)
-
