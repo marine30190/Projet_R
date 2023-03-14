@@ -70,7 +70,88 @@ server <- function(input, output, session) {
     list(board = board, flags = flags, state = state)
   }
 }
-
+# Initialise la partie
+  game <- commencePartie(input$n, input$p)
+  
+  # Affiche la grille
+  output$board <- renderMatrix({
+    # Créé une matrice avec les valeurs affichées sur la grille
+    display <- matrix("", input$n, input$n)
+    for (i in 1:input$n) {
+      for (j in 1:input$n) {
+        if (game$state[i, j] == "hidden") {
+          if (game$flags[i, j]) {
+            display[i, j] <- "🚩"
+          } else {
+            display[i, j] <- " "
+          }
+        } else if (game$state[i, j] == "mine") {
+          display[i, j] <- "💣"
+        } else {
+          display[i, j] <- game$board[i, j]
+        }
+      }
+    }
+    
+    # Affiche la matrice
+    matrix(display, input$n, input$n)
+  })
+  
+  # Clic sur une case
+  clickCase <- function(i, j) {
+    if (game$flags[i, j]) {
+      return()
+    }
+    
+    # Vérifie si la case est une mine
+    if (game$board[i, j] == -1) {
+      # La partie est perdue
+      game$state[i, j] <- "mine"
+      showGameOver()
+      return()
+    }
+    
+    # Affiche la valeur de la case
+    game$state[i, j] <- "visible"
+    
+    # Vérifie s'il n'y a pas de mine adjacente
+    if (game$board[i, j] == 0) {
+      # Clique sur les cases adjacentes
+      for (k in max(1, i - 1):min(input$n, i + 1)) {
+        for (l in max(1, j - 1):min(input$n, j + 1)) {
+          if (game$state[k, l] == "hidden") {
+            clickCase(k, l)
+          }
+        }
+      }
+    }
+    
+    # Vérifie si la partie est gagnée
+    if (sum(game$state == "hidden") == sum(game$board != -1)) {
+      showGameWon()
+    }
+  }
+  
+  # Place un drapeau
+  flagCase <- function(i, j) {
+    if (game$state[i, j] == "hidden") {
+      game$flags[i, j] <- !game$flags[i, j]
+    }
+  }
+  
+  # Affiche l'écran de fin de partie en cas de victoire
+  showGameWon <- function() {
+    showModal(
+      modalDialog(
+        title = "Gagné !",
+        "Vous avez gagné la partie.",
+        footer = tagList(
+          actionButton("reset", "Nouvelle partie"),
+          modalButton("Fermer")
+        )
+      )
+    )
+  }
 
 shinyApp(ui, server)
 
