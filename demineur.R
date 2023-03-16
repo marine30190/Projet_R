@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 install.packages('Rcpp')
-install.package('shiny')
+install.packages('shiny')
 library(Rcpp)
 library(shiny)
 #include <Rcpp.h>
