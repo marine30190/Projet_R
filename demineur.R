@@ -1,12 +1,6 @@
 # -*- coding: UTF-8 -*-
-install.packages('Rcpp')
 install.packages('shiny')
-library(Rcpp)
 library(shiny)
-#include <Rcpp.h>
-#using namespace Rcpp;
-
-sourceCpp("/home/e20220008770/Documents/programmatioon_R/Projet_R/projetR.cpp")
 
 ui <- fluidPage(
   titlePanel("Démineur"),
