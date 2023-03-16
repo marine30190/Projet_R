@@ -24,6 +24,10 @@ ui <- fluidPage(
 
 server <- function(input, output, session) {
   # Créé une grille de taille n par n avec la probabilité p d'avoir une mine
+  c <- reactive({
+   if(input$n==5) return(n<-5)
+   if(input$n==10) return(n<-10)
+   if(input$n==15) return(n<-15)
   createBoard <- function(n, nb_mines) {
     # Initialise une matrice vide
     board <- reactive({matrix(0, n, n)})
@@ -44,22 +48,15 @@ server <- function(input, output, session) {
     }
     
     return(board)
-  }
+  }})
   
   # Initialise une partie
-  commencePartie <- function(n, p) {
-    #On ajuste le nombre de mines à la difficulté
-    if (p==1){
-      nb_mines <- n
-    }
-    if (p==2){
-      nb_mines <- 2*n
-    }
-    if (p==3){
-      nb_mines <- 3*n
-    }
+   commencePartie<-reactive({ if (input$p == 1) return(nb_mines <-n)
+    if (input$p==2) return(nb_mines <- n*2)
+    if(input$p==3) return(nb_mines <-n*3)
+  
     # Créé une nouvelle grille
-    board <- createBoard(n, nb_mines)
+    board <- c(n, nb_mines)
     
     # Initialise le tableau de flags
     flags <- matrix(FALSE, n, n)
@@ -69,7 +66,7 @@ server <- function(input, output, session) {
     
     # Retourne les trois éléments
     list(board = board, flags = flags, state = state)
-  }
+  })
   
   # Initialise la partie
   game <- commencePartie(input$n, input$p)
