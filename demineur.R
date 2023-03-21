@@ -16,6 +16,7 @@ ui <- fluidPage(
 )
 
 server <- function(input, output, session) {
+  # Création d'alias pour utiliser taille et proba plus simplement 
   n <- reactive({as.numeric(input$taille)})
   p <- reactive({as.numeric(input$proba)})
   
