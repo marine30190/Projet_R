@@ -5,8 +5,8 @@ ui <- fluidPage(
   titlePanel("Démineur"),
   
   sidebarPanel(
-    sliderInput("taille", "Taille de la grille", min = 5, max = 15, value = 10),
-    sliderInput("proba", "Difficulté", min = 1, max = 3, value = 1), #Faire un truc plus pratique
+   sliderInput("n", "Taille de la grille", min = 5, max = 15, value = 10),
+   sliderInput("p", "Difficulté", min = 1, max = 3, value = 1), #Faire un truc plus pratique
     actionButton("reset", "Nouvelle partie")
   ),
   
@@ -16,9 +16,6 @@ ui <- fluidPage(
 )
 
 server <- function(input, output, session) {
-  n <- reactive({input$taille})
-  p <- reactive({input$proba})
-  
   # Créé une grille de taille n par n avec des mines
   createBoard <- function(n, nb_mines) { #Créé une matrice de n*n contenant -1 pour les cases minées, le nombre de mines pour les autres cases
     # Initialise une matrice vide
@@ -60,12 +57,12 @@ server <- function(input, output, session) {
   }
   
   # Initialise la partie
-  game <- reactive({commencePartie(n, p)})
+  game <- reactive({commencePartie(input$n, input$p)})
   
   # Créé la matrice à afficher
-  display <- reactive({matrix("", n, n)})
-  for (i in 1:n) {
-    for (j in 1:n) {
+  display <- reactive({matrix("", input$n, input$n)})
+  for (i in 1:input$n) {
+    for (j in 1:input$n) {
       if (game$state[i, j] == "hidden") {
         if (game$flags[i, j]) {
           display[i, j] <- "🚩"
@@ -103,8 +100,8 @@ server <- function(input, output, session) {
     # Vérifie s'il n'y a pas de mine adjacente
     if (game$board[i, j] == 0) {
       # Clique sur les cases adjacentes
-      for (k in max(1, i - 1):min(n, i + 1)) {
-        for (l in max(1, j - 1):min(n, j + 1)) {
+      for (k in max(1, i - 1):min(input$n, i + 1)) {
+        for (l in max(1, j - 1):min(input$n, j + 1)) {
           if (game$state[k, l] == "hidden") {
             clickCase(k, l)
           }
@@ -155,7 +152,7 @@ server <- function(input, output, session) {
   
   # Réinitialise la partie
   observeEvent(input$reset, {
-    game <- reactive({commencePartie(n, p)})
+    game <- reactive({commencePartie(input$n, input$p)})
   })
   
   # Clique sur une case lorsqu'elle est cliquée par l'utilisateur
