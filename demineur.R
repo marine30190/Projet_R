@@ -152,7 +152,7 @@ server <- function(input, output, session) {
   
   # Réinitialise la partie
   observeEvent(input$reset, {
-    game <<- commencePartie(input$n, input$p)
+    game <- commencePartie(input$n, input$p)
   })
   
   # Clique sur une case lorsqu'elle est cliquée par l'utilisateur
