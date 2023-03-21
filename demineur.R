@@ -1,5 +1,4 @@
 # -*- coding: UTF-8 -*-
-install.packages('shiny')
 library(shiny)
 
 ui <- fluidPage(
@@ -12,45 +11,40 @@ ui <- fluidPage(
   ),
   
   mainPanel(
-    renderTable("board")
+    tableOutput("board")
   )
 )
 
 server <- function(input, output, session) {
-  # Créé une grille de taille n par n avec la probabilité p d'avoir une mine
-  c <- reactive({
-   if(input$n==5) return(n<-5)
-   if(input$n==10) return(n<-10)
-   if(input$n==15) return(n<-15)
-  createBoard <- function(n, nb_mines) {
+  # Créé une grille de taille n par n avec des mines
+  createBoard <- function(n, nb_mines) { #Créé une matrice de n*n contenant -1 pour les cases minées, le nombre de mines pour les autres cases
     # Initialise une matrice vide
-    board <- reactive({matrix(0, n, n)})
+    board <- matrix(0, n, n)
     
     # Remplit la matrice avec des mines aléatoires
-    mine_coord <- sample(input$n*input$n, nb_mines)
+    mine_coord <- sample(n*n, nb_mines)
     board[mine_coord] <- -1
     
     # Calcule les valeurs des cases non-mine
-    for (i in 1:input$n) {
-      for (j in 1:input$n) {
+    for (i in 1:n) {
+      for (j in 1:n) {
         if (board[i, j] != -1) {
           # Compte le nombre de mines adjacentes
-          count <- sum(board[max(1, i - 1):min(input$n, i + 1), max(1, j - 1):min(input$n, j + 1)] == -1)
+          count <- sum(board[max(1, i - 1):min(n, i + 1), max(1, j - 1):min(n, j + 1)] == -1)
           board[i, j] <- count
         }
       }
     }
     
     return(board)
-  }})
+  }
   
   # Initialise une partie
-   commencePartie<-reactive({ if (input$p == 1) return(nb_mines <-n)
-    if (input$p==2) return(nb_mines <- n*2)
-    if(input$p==3) return(nb_mines <-n*3)
-  
+  commencePartie <- function(n, p) {
+    #On ajuste le nombre de mines à la difficulté
+    nb_mines <- p*n
     # Créé une nouvelle grille
-    board <- c(n, nb_mines)
+    board <- createBoard(n, nb_mines)
     
     # Initialise le tableau de flags
     flags <- matrix(FALSE, n, n)
@@ -60,34 +54,31 @@ server <- function(input, output, session) {
     
     # Retourne les trois éléments
     list(board = board, flags = flags, state = state)
-  })
+  }
   
   # Initialise la partie
   game <- commencePartie(input$n, input$p)
   
-  # Affiche la grille
-  output$board <- renderMatrix({
-    # Créé une matrice avec les valeurs affichées sur la grille
-    display <- matrix("", input$n, input$n)
-    for (i in 1:input$n) {
-      for (j in 1:input$n) {
-        if (game$state[i, j] == "hidden") {
-          if (game$flags[i, j]) {
-            display[i, j] <- "🚩"
-          } else {
-            display[i, j] <- " "
-          }
-        } else if (game$state[i, j] == "mine") {
-          display[i, j] <- "💣"
+  # Créé la matrice à afficher
+  display <- matrix("", input$n, input$n)
+  for (i in 1:input$n) {
+    for (j in 1:input$n) {
+      if (game$state[i, j] == "hidden") {
+        if (game$flags[i, j]) {
+          display[i, j] <- "🚩"
         } else {
-          display[i, j] <- game$board[i, j]
+          display[i, j] <- " "
         }
+      } else if (game$state[i, j] == "mine") {
+        display[i, j] <- "💣"
+      } else {
+        display[i, j] <- game$board[i, j]
       }
     }
-    
-    # Affiche la matrice
-    matrix(display, input$n, input$n)
-  })
+  }
+  
+  # Affiche la grille
+  output$board <- renderTable(display)
   
   # Clic sur une case
   clickCase <- function(i, j) {
